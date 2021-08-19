@@ -87,6 +87,7 @@ class _ChatRoomState extends State<ChatRoom> {
     final String lastTime = DateFormat('yyyy-MM-dd, kk:mma')
         .format(time.toDate())
         .toString();
+    // TODO: .doc()에 room1 -> roomID 받아서 실행하도록!
     return lastMessage
         .doc('room1')
         .update({'lastMessage': text, 'lastTime': lastTime})
@@ -95,6 +96,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   Widget messageList() {    // 메시지 띄워줌
     return StreamBuilder<QuerySnapshot>(    // 스트림빌더 -> 실시간 업데이트!
+        //TODO: .collection()에 room1 -> roomID 받아오도록,,!
         stream: FirebaseFirestore.instance
             .collection('Chatroom/room1/messages')
             .orderBy('time', descending: true)
