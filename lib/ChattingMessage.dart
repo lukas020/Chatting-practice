@@ -1,8 +1,8 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-// DateFormat time 하는거
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // DateFormat time 하는거
 
 class Message extends StatelessWidget {
   final String sender;
@@ -10,8 +10,6 @@ class Message extends StatelessWidget {
   final Timestamp stamp;
   final bool printTime;
   final bool printDate;
-
-  // final DateTime time;
 
   Message(this.sender, this.text, this.stamp, this.printTime, this.printDate);
 
@@ -53,36 +51,35 @@ class Message extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  //이름, 메시지
-                  child: Column(
+                  child: Column(    // 이름, 메시지
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(sender,
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Container(
+                            constraints: BoxConstraints(maxWidth: 280),
                             child: Text(text, style: TextStyle(fontSize: 15)),
                             padding:
                                 EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
                             decoration: BoxDecoration(
-                                color: const Color(0x9ebed8ff),
+                                color: const Color(0xf7eeeeee),
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           SizedBox(width: 5),
-                          Column(
-                            children: [
-                              SizedBox(height: 13),
-                              Text(
-                                ((printTime == true)
-                                    ? DateFormat('kk:mma')
-                                        .format(stamp.toDate())
-                                        .toString()
-                                    : ""),
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 13.5),
-                              ),
-                            ],
+                          Container(
+                            padding: EdgeInsets.only(bottom:4),
+                            child: Text(
+                              ((printTime == true)
+                                  ? DateFormat('kk:mma')
+                                      .format(stamp.toDate())
+                                      .toString()
+                                  : ""),
+                              style: TextStyle(
+                                  color: Colors.grey, fontSize: 13.5),
+                            ),
                           ),
                         ],
                       ),
@@ -122,24 +119,23 @@ class Message extends StatelessWidget {
           ,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                children: [
-                  SizedBox(height: 13),
-                  Text(
-                    ((printTime == true)
-                        ? DateFormat('kk:mma').format(stamp.toDate()).toString()
-                        : ""),
-                    style: TextStyle(color: Colors.grey, fontSize: 13.5),
-                  ),
-                ],
+              Container(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Text(((printTime == true)
+                      ? DateFormat('kk:mma').format(stamp.toDate()).toString()
+                      : ""),
+                  style: TextStyle(color: Colors.grey, fontSize: 13.5),
+                ),
               ),
               SizedBox(width: 5),
               Container(
+                constraints: BoxConstraints(maxWidth: 280),
                 child: Text(text, style: TextStyle(fontSize: 15)),
                 padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
                 decoration: BoxDecoration(
-                    color: const Color(0xf7eeeeee),
+                    color: const Color(0x9ebed8ff),
                     borderRadius: BorderRadius.circular(8.0)),
               ),
             ],

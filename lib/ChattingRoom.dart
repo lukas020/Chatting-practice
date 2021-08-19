@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'ChattingMessage.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -14,76 +13,40 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
   TextEditingController _textEditingController = TextEditingController();
   ScrollController _scrollController = ScrollController();
-// String a = '';
-//   @override
-//   void initState() {
-//     super.initState();
-//     FirebaseFirestore.instance
-//         .collection('Chatroom')
-//         .snapshots()
-//         .single
-//         .then((value) {
-//        a = value.docs.single.get('userA');
-//     });
-//   }
 
   @override
   Widget build(BuildContext context) {
 
-    // print (a);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('user'),
       ),
-      body: SafeArea(
+      body: SafeArea(   // 메시지 입력창 화면에 안가리도록
         child: Column(
           children: [
-            //message list 가져오기
-            messageList(),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 10.0),
+            messageList(),  // 메시지 가져오기
+            Container(    // 메시지 입력, 보내기 버튼 감싼 컨테이너
+              margin: EdgeInsets.symmetric(horizontal: 13.0),
               decoration: BoxDecoration(
                   color: const Color(0xf7eeeeee),
                   borderRadius: BorderRadius.circular(15.0)),
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              padding: EdgeInsets.only(left:16, right:5, top:4, bottom:1),
               child: Row(
                 children: [
-                  //하단바
                   Expanded(
-                    // 메세지 입력창
-                    child: TextField(
+                    child: TextField(   // 메시지 입력필드
                       controller: _textEditingController,
-                      decoration: InputDecoration.collapsed(
+                      minLines: 1,
+                      maxLines: 3,
+                      decoration: InputDecoration(
                         hintText: '메세지 입력',
                         border: InputBorder.none,
+                        suffixIcon: IconButton(   // 전송 버튼
+                          icon: Icon(Icons.send_rounded, color: Colors.grey,),
+                          onPressed: () {_handleSubmitted('100', _textEditingController.text, Timestamp.now());}
+                        ),
                       ),
-                      // enter로 제출 시
-                      onSubmitted: (input) {
-                        _handleSubmitted('100', _textEditingController.text,
-                            Timestamp.now());
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    // 입력창, 버튼 거리 띄우기
-                    width: 10.0,
-                  ),
-                  // 보내기 버튼
-                  Container(
-                    width: 65.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(300.0)
-                    ),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: const Color(0xff6990FF),
-                      ),
-                      onPressed: () {
-                        _handleSubmitted(
-                            '100', _textEditingController.text, Timestamp.now());
-                      },
-                      child: Text('send', style: TextStyle(color: Colors.white/*const Color(0xfff3f3f3)*/),),
                     ),
                   ),
                 ],
@@ -96,10 +59,11 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 
   void _handleSubmitted(String sender, String text, Timestamp stamp) {
-    _scrollToBottom();
-    if (text.trim() != '') {
+    _scrollToBottom();    // 메시지 전송 버튼 누르면 가장 아래로 스크롤 -> 메시지 없어도 작동
+    if (text.trim() != '') {    // 메시지 있는가 판단
       _textEditingController.clear();
 
+      // TODO: .collection() 안에 room1 -> room ID 받아오도록.
       var documentReference = FirebaseFirestore.instance
           .collection('Chatroom/room1/messages')
           .doc();
@@ -117,8 +81,20 @@ class _ChatRoomState extends State<ChatRoom> {
     }
   }
 
-  Widget messageList() {
-    return StreamBuilder<QuerySnapshot>(
+  CollectionReference lastMessage = FirebaseFirestore.instance.collection('Chatroom');
+
+  Future <void> updateLastMessage(String text, Timestamp time){   // lastMessage, lastTime 반환 -> 채팅 리스트에 띄울 수 있게
+    final String lastTime = DateFormat('yyyy-MM-dd, kk:mma')
+        .format(time.toDate())
+        .toString();
+    return lastMessage
+        .doc('room1')
+        .update({'lastMessage': text, 'lastTime': lastTime})
+        .then((value) => print('updated'));
+  }
+
+  Widget messageList() {    // 메시지 띄워줌
+    return StreamBuilder<QuerySnapshot>(    // 스트림빌더 -> 실시간 업데이트!
         stream: FirebaseFirestore.instance
             .collection('Chatroom/room1/messages')
             .orderBy('time', descending: true)
@@ -141,7 +117,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   final time = documents[index].get('time');
                   final printTime;
                   final printDate;
-                  //Time print 여부
+                  //Time print 여부 판단
                   if (index != 0) {
                     final beforeTime = documents[index - 1].get('time');
                     final timeToDate = DateFormat('yyyy-MM-dd, kk:mma')
@@ -158,7 +134,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   } else {
                     printTime = true;
                   }
-                  //Date print 여부
+                  //Date print 여부 판단
                   if (index != _length - 1) {
                     final nextTime = documents[index + 1].get('time');
                     final timeToDate = DateFormat('yyyy-MM-dd')
@@ -174,6 +150,10 @@ class _ChatRoomState extends State<ChatRoom> {
                     }
                   } else {
                     printDate = true;
+                  }
+                  if (index == 0) {
+                    updateLastMessage(text, time);
+
                   }
                   return Message(sender, text, time, printTime, printDate);
                 }),
