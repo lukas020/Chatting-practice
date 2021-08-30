@@ -101,6 +101,7 @@ class Message extends StatelessWidget {
                   Container(
                       alignment: Alignment.center,
                       child: Text(
+                        // DateFormat : yyyy-MM-dd (연월일), kk:mma (시간분)
                         DateFormat('yyyy-MM-dd').format(stamp.toDate()).toString(),
                         style: TextStyle(color: Colors.grey, fontSize: 13.5),
                       ),

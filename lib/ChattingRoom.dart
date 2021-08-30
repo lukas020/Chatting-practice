@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'ChattingMessage.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -44,6 +42,7 @@ class _ChatRoomState extends State<ChatRoom> {
                         border: InputBorder.none,
                         suffixIcon: IconButton(   // 전송 버튼
                           icon: Icon(Icons.send_rounded, color: Colors.grey,),
+                          // TODO: senderID 하드코딩 -> 아이디 넣을 것
                           onPressed: () {_handleSubmitted('100', _textEditingController.text, Timestamp.now());}
                         ),
                       ),
@@ -96,7 +95,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   Widget messageList() {    // 메시지 띄워줌
     return StreamBuilder<QuerySnapshot>(    // 스트림빌더 -> 실시간 업데이트!
-        //TODO: .collection()에 room1 -> roomID 받아오도록,,!
+        // TODO: .collection()에 room1 -> roomID 받아오도록,,!
         stream: FirebaseFirestore.instance
             .collection('Chatroom/room1/messages')
             .orderBy('time', descending: true)
@@ -155,7 +154,6 @@ class _ChatRoomState extends State<ChatRoom> {
                   }
                   if (index == 0) {
                     updateLastMessage(text, time);
-
                   }
                   return Message(sender, text, time, printTime, printDate);
                 }),
